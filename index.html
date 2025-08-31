@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Voting System</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --light: #f3f4f6;
+            --dark: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #e3f2fd;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .card h2 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(79, 195, 247, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .voting-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .candidate {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .candidate:hover {
+            background: rgba(79, 195, 247, 0.3);
+            transform: translateY(-5px);
+        }
+        
+        .candidate img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 3px solid #4fc3f7;
+        }
+        
+        .vote-btn {
+            background: linear-gradient(45deg, #2196f3, #4fc3f7);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 25px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        
+        .vote-btn:hover {
+            background: linear-gradient(45deg, #1976d2, #29b6f6);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .blockchain {
+            margin-top: 30px;
+        }
+        
+        .blocks {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px 0;
+            gap: 20px;
+        }
+        
+        .block {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 280px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .block-header {
+            color: #4fc3f7;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .block-data {
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        
+        .block-hash {
+            font-family: monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            color: #e3f2fd;
+        }
+        
+        .timestamp {
+            font-size: 0.85rem;
+            color: #90caf9;
+        }
+        
+        .genesis-block {
+            border: 2px solid #f44336;
+        }
+        
+        .selected {
+            border: 2px solid #4fc3f7;
+            box-shadow: 0 0 15px rgba(79, 195, 247, 0.5);
+        }
+        
+        .vote-count {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .candidate-votes {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            flex: 1;
+            margin: 0 8px;
+        }
+        
+        .winner {
+            text-align: center;
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        
+        .instructions h2 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #90caf9;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .voting-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .vote-count {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Blockchain Voting System</h1>
+            <p class="subtitle">A secure, transparent, and tamper-proof voting system built on blockchain technology. Cast your vote for your preferred candidate and watch it get added to the immutable blockchain.</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2>Cast Your Vote</h2>
+                <p>Select a candidate and click "Vote" to record your vote on the blockchain.</p>
+                
+                <div class="voting-options">
+                    <div class="candidate" onclick="selectCandidate('Aman')">
+                        <img src="https://api.dicebear.com/6.x/adventurer/svg?seed=Aman" alt="Aman">
+                        <h3>Aman</h3>
+                        <p>Proposal: Education Reform</p>
+                    </div>
+                    
+                    <div class="candidate" onclick="selectCandidate('Karan')">
+                        <img src="https://api.dicebear.com/6.x/adventurer/svg?seed=Karan" alt="Karan">
+                        <h3>Karan</h3>
+                        <p>Proposal: Healthcare Improvement</p>
+                    </div>
+                    
+                    <div class="candidate" onclick="selectCandidate('Niraj')">
+                        <img src="https://api.dicebear.com/6.x/adventurer/svg?seed=Niraj" alt="Niraj">
+                        <h3>Niraj</h3>
+                        <p>Proposal: Climate Action</p>
+                    </div>
+                    
+                    <div class="candidate" onclick="selectCandidate('Gopal')">
+                        <img src="https://api.dicebear.com/6.x/adventurer/svg?seed=Gopal" alt="Gopal">
+                        <h3>Gopal</h3>
+                        <p>Proposal: Economic Growth</p>
+                    </div>
+                </div>
+                
+                <button class="vote-btn" onclick="castVote()">Cast Vote</button>
+            </div>
+            
+            <div class="card">
+                <h2>Election Results</h2>
+                <div class="vote-count">
+                    <div class="candidate-votes">
+                        <h3>Aman</h3>
+                        <p id="aman-votes">0 votes</p>
+                    </div>
+                    <div class="candidate-votes">
+                        <h3>Karan</h3>
+                        <p id="karan-votes">0 votes</p>
+                    </div>
+                    <div class="candidate-votes">
+                        <h3>Niraj</h3>
+                        <p id="niraj-votes">0 votes</p>
+                    </div>
+                    <div class="candidate-votes">
+                        <h3>Gopal</h3>
+                        <p id="gopal-votes">0 votes</p>
+                    </div>
+                </div>
+                
+                <div class="winner" id="winner-section">
+                    <h3>Current Leader</h3>
+                    <p id="winner">No votes yet</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card blockchain">
+            <h2>Blockchain</h2>
+            <p>Each vote is recorded as a block in the blockchain. The chain is immutable and transparent.</p>
+            
+            <div class="blocks" id="blockchain">
+                <!-- Blocks will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>How to Use This Voting System</h2>
+            <ol>
+                <li>Review the candidate information for Aman, Karan, Niraj, and Gopal</li>
+                <li>Click on a candidate to select them (the selected candidate will be highlighted)</li>
+                <li>Click the "Cast Vote" button to record your vote on the blockchain</li>
+                <li>Watch as each vote is added as a new block to the blockchain</li>
+                <li>See real-time election results update on the right side</li>
+            </ol>
+        </div>
+        
+        <footer>
+            <p>Blockchain Voting System &copy; 2023 | Built with HTML, CSS, and JavaScript</p>
+        </footer>
+    </div>
+
+    <script>
+        // Blockchain implementation
+        let blockchain = [];
+        let selectedCandidate = null;
+        const candidates = {
+            'Aman': 0,
+            'Karan': 0,
+            'Niraj': 0,
+            'Gopal': 0
+        };
+        
+        // Create genesis block
+        function createGenesisBlock() {
+            return {
+                index: 0,
+                timestamp: new Date().toISOString(),
+                data: {
+                    voter: 'System',
+                    candidate: 'Genesis Block'
+                },
+                previousHash: '0',
+                hash: calculateHash(0, '0', new Date().toISOString(), {voter: 'System', candidate: 'Genesis Block'})
+            };
+        }
+        
+        // Calculate hash for block
+        function calculateHash(index, previousHash, timestamp, data) {
+            return SHA256(index + previousHash + timestamp + JSON.stringify(data)).toString();
+        }
+        
+        // Create a new block
+        function createNewBlock(voter, candidate) {
+            const previousBlock = blockchain[blockchain.length - 1];
+            const newIndex = previousBlock.index + 1;
+            const newTimestamp = new Date().toISOString();
+            const newData = {
+                voter: voter,
+                candidate: candidate
+            };
+            const newHash = calculateHash(newIndex, previousBlock.hash, newTimestamp, newData);
+            
+            return {
+                index: newIndex,
+                timestamp: newTimestamp,
+                data: newData,
+                previousHash: previousBlock.hash,
+                hash: newHash
+            };
+        }
+        
+        // Select candidate
+        function selectCandidate(candidate) {
+            selectedCandidate = candidate;
+            
+            // Update UI
+            const candidateElements = document.querySelectorAll('.candidate');
+            candidateElements.forEach(el => {
+                if (el.querySelector('h3').textContent === candidate) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Cast vote
+        function castVote() {
+            if (!selectedCandidate) {
+                alert('Please select a candidate first!');
+                return;
+            }
+            
+            // Generate random voter ID (in real system, this would be authenticated)
+            const voterId = 'Voter-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // Create new block
+            const newBlock = createNewBlock(voterId, selectedCandidate);
+            blockchain.push(newBlock);
+            
+            // Update candidate votes
+            candidates[selectedCandidate]++;
+            updateResults();
+            
+            // Add block to UI
+            addBlockToUI(newBlock);
+            
+            alert(`Vote for ${selectedCandidate} recorded successfully!\nYour Voter ID: ${voterId}`);
+            selectedCandidate = null;
+            
+            // Reset selection
+            const candidateElements = document.querySelectorAll('.candidate');
+            candidateElements.forEach(el => el.classList.remove('selected'));
+        }
+        
+        // Update results
+        function updateResults() {
+            document.getElementById('aman-votes').textContent = candidates.Aman + ' votes';
+            document.getElementById('karan-votes').textContent = candidates.Karan + ' votes';
+            document.getElementById('niraj-votes').textContent = candidates.Niraj + ' votes';
+            document.getElementById('gopal-votes').textContent = candidates.Gopal + ' votes';
+            
+            // Find winner
+            let maxVotes = 0;
+            let winner = 'No votes yet';
+            
+            for (const [candidate, votes] of Object.entries(candidates)) {
+                if (votes > maxVotes) {
+                    maxVotes = votes;
+                    winner = candidate;
+                }
+            }
+            
+            if (maxVotes > 0) {
+                document.getElementById('winner').textContent = winner + ' with ' + maxVotes + ' votes';
+            } else {
+                document.getElementById('winner').textContent = winner;
+            }
+        }
+        
+        // Add block to UI
+        function addBlockToUI(block) {
+            const blockchainEl = document.getElementById('blockchain');
+            
+            const blockEl = document.createElement('div');
+            blockEl.className = 'block';
+            if (block.index === 0) {
+                blockEl.classList.add('genesis-block');
+            }
+            
+            blockEl.innerHTML = `
+                <h3 class="block-header">Block #${block.index}</h3>
+                <div class="block-data">
+                    <p><strong>Voter:</strong> ${block.data.voter}</p>
+                    <p><strong>Candidate:</strong> ${block.data.candidate}</p>
+                    <p class="timestamp"><strong>Time:</strong> ${new Date(block.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <div class="block-hash">
+                    <strong>Hash:</strong> ${block.hash.substring(0, 20)}...
+                </div>
+                <div class="block-hash">
+                    <strong>Prev Hash:</strong> ${block.previousHash.substring(0, 20)}...
+                </div>
+            `;
+            
+            blockchainEl.appendChild(blockEl);
+            blockchainEl.scrollLeft = blockchainEl.scrollWidth;
+        }
+        
+        // Initialize blockchain
+        function initBlockchain() {
+            blockchain.push(createGenesisBlock());
+            addBlockToUI(blockchain[0]);
+        }
+        
+        // Initialize
+        window.onload = function() {
+            initBlockchain();
+            updateResults();
+        };
+        
+        // Simple SHA256 implementation (for demonstration purposes)
+        // In a real application, use a well-tested cryptography library
+        const SHA256 = function(s) {
+            // Simple hash function for demonstration
+            // Not cryptographically secure!
+            let hash = 0, i, chr;
+            if (s.length === 0) return hash.toString();
+            for (i = 0; i < s.length; i++) {
+                chr = s.charCodeAt(i);
+                hash = ((hash << 5) - hash) + chr;
+                hash |= 0;
+            }
+            return Math.abs(hash).toString(16);
+        };
+    </script>
+</body>
+</html>
